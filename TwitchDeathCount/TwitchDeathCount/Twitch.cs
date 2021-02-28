@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.IO;
+using Debugger;
 
 namespace TwitchDeathCount
 {
@@ -14,8 +15,6 @@ namespace TwitchDeathCount
         private static StreamReader SReader;
         private static StreamWriter SWriter;
 
-        static int ChatWriterTimer;
-
         #region Connect to Twitch
 
         public static void LaunchConnection()
@@ -27,7 +26,7 @@ namespace TwitchDeathCount
 
         static void GetTwitchDetails()
         {
-            Console.WriteLine("Twitch Client: Getting Details...");
+            ConWin.UpdateTwitchLog("Twitch Client: Getting Details...");
             DisplayName = File.ReadAllText("Channel Details\\Display Name.txt");
             UserName = File.ReadAllText("Channel Details\\User Name.txt");
             AuthKey = File.ReadAllText("Channel Details\\Auth Key.txt");
@@ -35,7 +34,7 @@ namespace TwitchDeathCount
 
         static void ConnectToTwitch()
         {
-            Console.WriteLine("Twitch Client: Connecting...");
+            ConWin.UpdateTwitchLog("Twitch Client: Connecting...");
             TwitchClient = new TcpClient("irc.chat.twitch.tv", 6667);
             SReader = new StreamReader(TwitchClient.GetStream());
             SWriter = new StreamWriter(TwitchClient.GetStream());
@@ -47,16 +46,17 @@ namespace TwitchDeathCount
             string Response = SReader.ReadLine();
             if (Response.Contains("Welcome, GLHF"))
             {
-                Console.WriteLine("Twitch Client: Connected");
+                ConWin.UpdateTwitchLog("Twitch Client: Connected");
             }
             else
             {
-                Console.WriteLine("Twitch Client: Failed to Connect");
+                ConWin.UpdateTwitchLog("Twitch Client: Failed to Connect");
+                Debug.Log("Twitch - ConnectToTwitch() -> Failed to Connect", 3);
                 return;
             }
-            Console.WriteLine(Response);
+            ConWin.UpdateTwitchLog(Response);
             string Response2 = SReader.ReadLine();
-            Console.WriteLine(Response2);
+            ConWin.UpdateTwitchLog(Response2);
         }
 
         #endregion
@@ -79,31 +79,37 @@ namespace TwitchDeathCount
             if(TwitchClient.Available > 0)
             {
                 var Msg = SReader.ReadLine();
-                //ConWin.UpdateTwitchLog(Msg);
-                if(Msg.Contains("PRIVMSG"))
+                if (Msg.Contains("PING"))
+                {
+                    SWriter.WriteLine("PONG :tmi.twitch.tv");
+                }
+                else if (Msg.Contains("PRIVMSG"))
                 {
                     var splitPoint = Msg.IndexOf("!", 1);
                     var ChatName = Msg.Substring(0, splitPoint);
                     ChatName = ChatName.Substring(1);
                     splitPoint = Msg.IndexOf(":", 1);
                     Msg = Msg.Substring(splitPoint + 1);
-                    //if (Msg.Substring(0, 1) == "!" && Msg.Length <= 3)
-                    //    MainClass.ChatOptions.CheckNewVote(Msg, ChatName);
+                    if (Msg.Substring(0, 1) == "!")
+                    {
+                        Master.ProcessInput(Msg.ToLower(), ChatName);
+                        Msg = ChatName + ": " + Msg;
+                    }
+                    else
+                        Msg = "";
                     //if (Msg.Substring(0, 1) == "!" && ChatName == DisplayName.ToLower())
                     //    StreamerChatCommands(Msg);
                 }
-                else if (Msg.Contains("PING"))
-                {
-                    SWriter.WriteLine("PONG :tmi.twitch.tv");
-                }
+                if(Msg != "")
+                    ConWin.UpdateTwitchLog(Msg);
             }
-            //if(!Settings.GetPause())
+            //if (!Settings.GetPause())
             //    ChatWriterTimer -= 1;
-            if(ChatWriterTimer <= 0)
-            {
-                WriteToChat("Type '!' and the number of the option you wish to vote for!");
-                //ChatWriterTimer = Settings.GetChatWriterTime();
-            }
+            //if (ChatWriterTimer <= 0)
+            //{
+            //    WriteToChat("Type '!' and the number of the option you wish to vote for!");
+            //    ChatWriterTimer = Settings.GetChatWriterTime();
+            //}
         }
 
         #endregion
