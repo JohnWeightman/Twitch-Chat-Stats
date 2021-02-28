@@ -1,0 +1,13 @@
+D:\Visual Studio\TwitchDeathCount\TwitchDeathCount\obj\Debug\netcoreapp3.1\TwitchDeathCount.csprojAssemblyReference.cache
+D:\Visual Studio\TwitchDeathCount\TwitchDeathCount\obj\Debug\netcoreapp3.1\TwitchDeathCount.AssemblyInfoInputs.cache
+D:\Visual Studio\TwitchDeathCount\TwitchDeathCount\obj\Debug\netcoreapp3.1\TwitchDeathCount.AssemblyInfo.cs
+D:\Visual Studio\TwitchDeathCount\TwitchDeathCount\obj\Debug\netcoreapp3.1\TwitchDeathCount.csproj.CoreCompileInputs.cache
+D:\Visual Studio\TwitchDeathCount\TwitchDeathCount\bin\Debug\netcoreapp3.1\TwitchDeathCount.exe
+D:\Visual Studio\TwitchDeathCount\TwitchDeathCount\bin\Debug\netcoreapp3.1\TwitchDeathCount.deps.json
+D:\Visual Studio\TwitchDeathCount\TwitchDeathCount\bin\Debug\netcoreapp3.1\TwitchDeathCount.runtimeconfig.json
+D:\Visual Studio\TwitchDeathCount\TwitchDeathCount\bin\Debug\netcoreapp3.1\TwitchDeathCount.runtimeconfig.dev.json
+D:\Visual Studio\TwitchDeathCount\TwitchDeathCount\bin\Debug\netcoreapp3.1\TwitchDeathCount.dll
+D:\Visual Studio\TwitchDeathCount\TwitchDeathCount\bin\Debug\netcoreapp3.1\TwitchDeathCount.pdb
+D:\Visual Studio\TwitchDeathCount\TwitchDeathCount\obj\Debug\netcoreapp3.1\TwitchDeathCount.dll
+D:\Visual Studio\TwitchDeathCount\TwitchDeathCount\obj\Debug\netcoreapp3.1\TwitchDeathCount.pdb
+D:\Visual Studio\TwitchDeathCount\TwitchDeathCount\obj\Debug\netcoreapp3.1\TwitchDeathCount.genruntimeconfig.cache

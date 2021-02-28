@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v3.1",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v3.1": {
+      "TwitchDeathCount/1.0.0": {
+        "runtime": {
+          "TwitchDeathCount.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "TwitchDeathCount/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
