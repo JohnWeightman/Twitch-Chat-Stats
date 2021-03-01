@@ -27,9 +27,9 @@ namespace TwitchDeathCount
         static void GetTwitchDetails()
         {
             ConWin.UpdateTwitchLog("Twitch Client: Getting Details...");
-            DisplayName = File.ReadAllText("Channel Details\\Display Name.txt");
-            UserName = File.ReadAllText("Channel Details\\User Name.txt");
-            AuthKey = File.ReadAllText("Channel Details\\Auth Key.txt");
+            DisplayName = File.ReadAllText("Channel Details\\Display Name.txt").ToLower();
+            UserName = File.ReadAllText("Channel Details\\User Name.txt").ToLower();
+            AuthKey = File.ReadAllText("Channel Details\\Auth Key.txt").ToLower();
         }
 
         static void ConnectToTwitch()
@@ -39,9 +39,9 @@ namespace TwitchDeathCount
             SReader = new StreamReader(TwitchClient.GetStream());
             SWriter = new StreamWriter(TwitchClient.GetStream());
             SWriter.WriteLine("PASS " + AuthKey);
-            SWriter.WriteLine("NICK " + UserName.ToLower());
-            SWriter.WriteLine("USER " + UserName.ToLower() + " 8 * :" + UserName.ToLower());
-            SWriter.WriteLine("JOIN #" + DisplayName.ToLower());
+            SWriter.WriteLine("NICK " + UserName);
+            SWriter.WriteLine("USER " + UserName + " 8 * :" + UserName);
+            SWriter.WriteLine("JOIN #" + DisplayName);
             SWriter.Flush();
             string Response = SReader.ReadLine();
             if (Response.Contains("Welcome, GLHF"))
@@ -65,7 +65,7 @@ namespace TwitchDeathCount
 
         public static void WriteToChat(string Msg)
         {
-            SWriter.WriteLine("PRIVMSG #" + DisplayName.ToLower() + " :" + Msg);
+            SWriter.WriteLine("PRIVMSG #" + DisplayName + " :" + Msg);
             SWriter.Flush();
         }
 
@@ -92,7 +92,7 @@ namespace TwitchDeathCount
                     Msg = Msg.Substring(splitPoint + 1);
                     if (Msg.Substring(0, 1) == "!")
                     {
-                        Master.ProcessInput(Msg.ToLower(), ChatName);
+                        Msg = Master.ProcessInput(Msg.ToLower(), ChatName);
                         Msg = ChatName + ": " + Msg;
                     }
                     else
