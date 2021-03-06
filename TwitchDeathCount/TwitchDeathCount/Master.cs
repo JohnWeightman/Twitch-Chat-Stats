@@ -10,7 +10,7 @@ namespace TwitchDeathCount
         static List<string> Commands = new List<string>() { "******" };
 
         static void Main(string[] args)
-        {
+        {          
             ConWin.ConWinStart();
             Twitch.LaunchConnection();
             Console.ReadLine();
@@ -42,13 +42,16 @@ namespace TwitchDeathCount
                 case 12:
                 case 13:
                 case 14:
-                    AddOrRemoveToVariableCount(Msg, Command);
+                    Msg = AddOrRemoveToVariableCount(Msg, Command);
                     break;
                 case 15:
                     Msg = NewVariable(Msg);
                     break;
                 case 16:
                     Msg = DeleteVariable(Msg);
+                    break;
+                case 17:
+                    Msg = RenameVariable(Msg);
                     break;
                 default:
                     Debug.Log("Master - ProcessInput() -> Invalid Command: " + Command + " (" + Msg + ")", 1);
@@ -59,6 +62,7 @@ namespace TwitchDeathCount
 
         static byte IsMsgCommand(string Msg)
         {
+            Msg = RemoveSymbols(Msg);
             for (byte VarPos = 0; VarPos < Variables.Count; VarPos++)
                 if (Msg == "!" + Variables[VarPos].Item1)
                     return VarPos;
@@ -66,7 +70,9 @@ namespace TwitchDeathCount
                 return 15;
             else if (Msg.Contains("!delvar"))
                 return 16;
-            byte Val = 16;
+            else if (Msg.Contains("!rename"))
+                return 17;
+            byte Val = 17;
             foreach(string Command in Commands)
             {
                 Val++;
@@ -76,15 +82,67 @@ namespace TwitchDeathCount
             return 255;
         }
 
+        static string RemoveSymbols(string Msg)
+        {
+            int Index = 0;
+            if (Msg.Contains("+"))
+            {
+                Index = Msg.IndexOf("+", 0, Msg.Length);
+                Msg = Msg.Substring(0, Index);
+                Msg = Msg.Replace(" ", string.Empty);
+            }
+            else if (Msg.Contains("-"))
+            {
+                Index = Msg.IndexOf("-", 0, Msg.Length);
+                Msg = Msg.Substring(0, Index);
+                Msg = Msg.Replace(" ", string.Empty);
+            }
+            else if (Msg.Contains("="))
+            {
+                Index = Msg.IndexOf("=", 0, Msg.Length);
+                Msg = Msg.Substring(0, Index);
+                Msg = Msg.Replace(" ", string.Empty);
+            }
+            return Msg;
+        }
+
         #endregion
 
-        static void AddOrRemoveToVariableCount(string Msg, byte VarPos)
+        static string AddOrRemoveToVariableCount(string Msg, byte VarPos)
         {
-            if (Msg.Contains('-'))
-                Variables[VarPos] = new Tuple<string, int>(Variables[VarPos].Item1, Variables[VarPos].Item2 - 1);
-            else
-                Variables[VarPos] = new Tuple<string, int>(Variables[VarPos].Item1, Variables[VarPos].Item2 + 1);
-            ConWin.UpdateVarBoxes(VarPos + 1, Variables[VarPos].Item1 + ": " + Variables[VarPos].Item2);
+            try
+            {
+                if (Msg.Contains("+"))
+                {
+                    int Index = Msg.IndexOf("+", 0, Msg.Length);
+                    int Number = Convert.ToInt32(Msg.Substring(Index + 1, Msg.Length - (Index + 1)));
+                    Variables[VarPos] = new Tuple<string, int>(Variables[VarPos].Item1, Variables[VarPos].Item2 + Number);
+                }
+                else if (Msg.Contains("-"))
+                {
+                    int Index = Msg.IndexOf("-", 0, Msg.Length);
+                    int Number = Convert.ToInt32(Msg.Substring(Index + 1, Msg.Length - (Index + 1)));
+                    Variables[VarPos] = new Tuple<string, int>(Variables[VarPos].Item1, Variables[VarPos].Item2 - Number);
+                }
+                else if (Msg.Contains("="))
+                {
+                    int Index = Msg.IndexOf("=", 0, Msg.Length);
+                    int Number = Convert.ToInt32(Msg.Substring(Index + 1, Msg.Length - (Index + 1)));
+                    Variables[VarPos] = new Tuple<string, int>(Variables[VarPos].Item1, Number);
+                }
+                else
+                {
+                    Variables[VarPos] = new Tuple<string, int>(Variables[VarPos].Item1, Variables[VarPos].Item2 + 1);
+                }
+                ConWin.UpdateVarBoxes(VarPos + 1, Variables[VarPos].Item1 + ": " + Variables[VarPos].Item2);
+                IO.UpdateMainVariableFile(Variables);
+            }
+            catch
+            {
+                Twitch.WriteToChat("Engine: Variable Error!");
+                return " -> Engine: Variable Error!";
+            }
+            return Msg;
         }
 
         #region New Variable
@@ -105,6 +163,7 @@ namespace TwitchDeathCount
                 return Msg + " -> Engine: That variable already exists!";
             }
             ConWin.UpdateVarBoxes(Variables.Count, NewTuple.Item1 + ": 0");
+            IO.UpdateMainVariableFile(Variables);
             return Msg;
         }
 
@@ -136,7 +195,6 @@ namespace TwitchDeathCount
                 return Msg + " -> Engine: That variable doesn't exist!";
             }
             UpdateAllVarBoxes();
-            //ConWin.UpdateVarBoxes(VarPos + 1, "Var " + (VarPos + 1));
             return Msg;
         }
 
@@ -154,14 +212,36 @@ namespace TwitchDeathCount
 
         #endregion
 
+        #region Rename Variable
+
+        static string RenameVariable(string Msg)
+        {
+            string Command = Msg.Substring(8, Msg.Length - 8);
+            int Index = Command.IndexOf("-", 0, Command.Length);
+            string CurrentName = Command.Substring(0, Command.Length - Index);
+            string NewName = Command.Substring(Index + 1, Command.Length - (Index + 1));
+            for(int x = 0; x < Variables.Count; x++)
+                if(Variables[x].Item1 == CurrentName)
+                {
+                    Variables[x] = new Tuple<string, int>(NewName, Variables[x].Item2);
+                    ConWin.UpdateVarBoxes(x + 1, Variables[x].Item1 + ": " + Variables[x].Item2);
+                    return Msg;
+                }
+            Twitch.WriteToChat("Engine: The variable '" + CurrentName + "' Doesn't exist!");
+            return " -> Engine: The variable '" + CurrentName + "' Doesn't exist!";
+        }
+
         #endregion
-    
+
+        #endregion
+
         static void UpdateAllVarBoxes()
         {
             for (int x = 0; x < Variables.Count; x++)
                 ConWin.UpdateVarBoxes(x + 1, Variables[x].Item1 + ": " + Variables[x].Item2);
             for (int x = 15 - (15 - Variables.Count); x < 15; x++)
                 ConWin.UpdateVarBoxes(x + 1, "Var " + (x + 1));
+            IO.UpdateMainVariableFile(Variables);
         }
     }
 }

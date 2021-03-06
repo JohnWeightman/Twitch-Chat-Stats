@@ -15,6 +15,8 @@ namespace TwitchDeathCount
         private static StreamReader SReader;
         private static StreamWriter SWriter;
 
+        private static int Count = 0;
+
         #region Connect to Twitch
 
         public static void LaunchConnection()
@@ -71,6 +73,8 @@ namespace TwitchDeathCount
 
         static void ReadChat()
         {
+            //ConWin.UpdateTwitchLog(TwitchClient.Connected + ": " + Count);
+            Count++;
             if (!TwitchClient.Connected)
             {
                 ConnectToTwitch();
@@ -82,6 +86,7 @@ namespace TwitchDeathCount
                 if (Msg.Contains("PING"))
                 {
                     SWriter.WriteLine("PONG :tmi.twitch.tv");
+                    Msg += " -> PONG :tmi.twitch.tv";
                 }
                 else if (Msg.Contains("PRIVMSG"))
                 {
@@ -102,7 +107,7 @@ namespace TwitchDeathCount
                 }
                 if(Msg != "")
                     ConWin.UpdateTwitchLog(Msg);
-            }
+            }7
             //if (!Settings.GetPause())
             //    ChatWriterTimer -= 1;
             //if (ChatWriterTimer <= 0)
