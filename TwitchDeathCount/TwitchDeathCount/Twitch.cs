@@ -11,11 +11,14 @@ namespace TwitchDeathCount
         public static string UserName;
         public static string AuthKey;
 
-        private static TcpClient TwitchClient;
+        public static TcpClient TwitchClient;
         private static StreamReader SReader;
         private static StreamWriter SWriter;
 
         private static int Count = 0;
+
+        static int ChatWriterReset = 300;
+        static int ChatWriterTimer;
 
         #region Connect to Twitch
 
@@ -24,6 +27,7 @@ namespace TwitchDeathCount
             GetTwitchDetails();
             ConnectToTwitch();
             var timer = new System.Threading.Timer(e => ReadChat(), null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+            ChatWriterTimer = ChatWriterReset;
         }
 
         static void GetTwitchDetails()
@@ -67,13 +71,14 @@ namespace TwitchDeathCount
 
         public static void WriteToChat(string Msg)
         {
-            SWriter.WriteLine("PRIVMSG #" + DisplayName + " :" + Msg);
+            SWriter.WriteLine("PRIVMSG #" + DisplayName + " :" + Msg + " " + Count);// + "\r\n");
+            //SWriter.WriteLine(string.Format(":" + UserName + "!" + UserName + "@" + UserName + ".tmi.twitch.tv PRIVMSG #" + DisplayName + " :" + Msg));
+            //SWriter.WriteLine("PRIVMSG #" + DisplayName + " :" + Msg + ":" + UserName + "!" + UserName + "@" + UserName + ".tmi.twitch.tv PRIVMSG #" + DisplayName + " :" + Msg);// + "\r\n");
             SWriter.Flush();
         }
 
         static void ReadChat()
         {
-            //ConWin.UpdateTwitchLog(TwitchClient.Connected + ": " + Count);
             Count++;
             if (!TwitchClient.Connected)
             {
@@ -107,14 +112,14 @@ namespace TwitchDeathCount
                 }
                 if(Msg != "")
                     ConWin.UpdateTwitchLog(Msg);
-            }7
-            //if (!Settings.GetPause())
-            //    ChatWriterTimer -= 1;
-            //if (ChatWriterTimer <= 0)
-            //{
-            //    WriteToChat("Type '!' and the number of the option you wish to vote for!");
-            //    ChatWriterTimer = Settings.GetChatWriterTime();
-            //}
+            }
+            ChatWriterTimer -= 1;
+            if (ChatWriterTimer <= 0)
+            {
+                WriteToChat("Test");
+                //WriteToChat("Type '!' and the number of the option you wish to vote for!");
+                ChatWriterTimer = ChatWriterReset;
+            }
         }
 
         #endregion

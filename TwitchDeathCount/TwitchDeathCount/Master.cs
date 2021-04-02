@@ -27,21 +27,7 @@ namespace TwitchDeathCount
                 return "Invalid Command - " + Msg;
             switch (Command)
             {
-                case 0:
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                case 5:
-                case 6:
-                case 7:
-                case 8:
-                case 9:
-                case 10:
-                case 11:
-                case 12:
-                case 13:
-                case 14:
+                case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 14:
                     Msg = AddOrRemoveToVariableCount(Msg, Command);
                     break;
                 case 15:
@@ -53,6 +39,8 @@ namespace TwitchDeathCount
                 case 17:
                     Msg = RenameVariable(Msg);
                     break;
+                case 254:
+                    return "Invalid Command - " + Msg;
                 default:
                     Debug.Log("Master - ProcessInput() -> Invalid Command: " + Command + " (" + Msg + ")", 1);
                     break;
@@ -66,7 +54,9 @@ namespace TwitchDeathCount
             for (byte VarPos = 0; VarPos < Variables.Count; VarPos++)
                 if (Msg == "!" + Variables[VarPos].Item1)
                     return VarPos;
-            if (Msg.Contains("!newvar"))
+            if (Msg.IndexOf("\\", 1, 1) == 1)
+                return GetPositionFromPositionCommand(Msg);
+            else if (Msg.Contains("!newvar"))
                 return 15;
             else if (Msg.Contains("!delvar"))
                 return 16;
@@ -80,6 +70,18 @@ namespace TwitchDeathCount
                     return Val;
             }
             return 255;
+        }
+
+        static byte GetPositionFromPositionCommand(string Msg)
+        {
+            try
+            {
+                return Convert.ToByte(Convert.ToInt32(Msg.Substring(2, Msg.Length - 2)) - 1);
+            }
+            catch
+            {
+                return 254;
+            }
         }
 
         static string RemoveSymbols(string Msg)
@@ -139,6 +141,7 @@ namespace TwitchDeathCount
             }
             catch
             {
+                Debug.Log("Master - AddOrRemoveToVariableCount() -> Error Processing Command: " + VarPos + " (" + Msg + ")", 1);
                 Twitch.WriteToChat("Engine: Variable Error!");
                 return " -> Engine: Variable Error!";
             }

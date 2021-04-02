@@ -12,6 +12,7 @@ namespace TwitchDeathCount
         static bool UDTwitchLog;
         static Timer Timer;
 
+        static int time;
         #region Start
 
         public static void ConWinStart()
@@ -74,6 +75,9 @@ namespace TwitchDeathCount
         {
             if (UDTwitchLog)
                 DisplayTwitchLog();
+            UpdateVarBoxes(14, "Time: " + time);
+            UpdateVarBoxes(15, "Connected: " + Twitch.TwitchClient.Connected);
+            time++;
         }
 
         #endregion
