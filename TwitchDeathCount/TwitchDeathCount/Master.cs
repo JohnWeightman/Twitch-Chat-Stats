@@ -10,7 +10,7 @@ namespace TwitchDeathCount
         static List<string> Commands = new List<string>() { "******" };
 
         static void Main(string[] args)
-        {          
+        {
             ConWin.ConWinStart();
             Twitch.LaunchConnection();
             Console.ReadLine();

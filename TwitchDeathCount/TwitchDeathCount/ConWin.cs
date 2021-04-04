@@ -11,8 +11,8 @@ namespace TwitchDeathCount
         static List<string> TwitchLog = new List<string>();
         static bool UDTwitchLog;
         static Timer Timer;
-
         static int time;
+
         #region Start
 
         public static void ConWinStart()
