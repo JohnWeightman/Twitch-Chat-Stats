@@ -1,3 +1,5 @@
-farts: 76
-deaths: 4
-test: 32
+deaths: 2
+prison break: 1
+insects killed: 687
+ista says a bad word: 27
+reasons to live: 0
